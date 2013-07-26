@@ -2,12 +2,14 @@
 #define GNUPLOT_H
 
 #include <stdio.h>
+#include <vector>
+#include <string>
 
 class GnuPlot
 {
 public:
-    GnuPlot();
-    void Plot(float value);
+    GnuPlot(std::vector<std::string> legends);
+    void Plot(std::vector<float>& values);
 private:
     FILE* gfeed_;
 };
