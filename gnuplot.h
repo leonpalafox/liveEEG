@@ -8,7 +8,7 @@
 class GnuPlot
 {
 public:
-    GnuPlot(std::vector<std::string> legends);
+    GnuPlot(std::vector<std::string>& legends);
     void Plot(std::vector<float>& values);
 private:
     FILE* gfeed_;
