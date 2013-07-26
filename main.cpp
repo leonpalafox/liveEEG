@@ -112,7 +112,7 @@ cout<<"l1"<<endl;
     }
 
     loop += 1;
-    if (loop > 10) {
+    if (loop > 1) {
       clock_gettime(CLOCK_REALTIME, &requestStart);
       if (fft.Process()) {
         fft.GetPower(powers);

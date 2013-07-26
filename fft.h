@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
 #include <fstream> // to read multitaper files
 #include <boost/circular_buffer.hpp> // to hold recent samples
 #include <fftw3.h> // fft library
-#include <omp.h>
+//#include <omp.h>
 #define _USE_MATH_DEFINES // pi
 #include <cmath>
 
@@ -70,9 +70,8 @@ template<class T>
 Fft<T>::Fft(size_t winSize, windowFunc winf_, size_t frq_, size_t numChannels,
             size_t numTapers) :
   winf(winf_), frq(frq_) {
-  fftw_init_threads();
+  //fftw_init_threads();
   //fftw_plan_with_nthreads(omp_get_max_threads());
-  fftw_plan_with_nthreads(1);
   out = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * ((winSize/2)+1) );
   in = (T*)fftw_malloc(sizeof(T) * winSize);
   inTmp = (T*)fftw_malloc(sizeof(T) * winSize);
@@ -138,7 +137,7 @@ Fft<T>::Fft(size_t winSize, windowFunc winf_, size_t frq_, size_t numChannels,
 
 template<class T>
 Fft<T>::~Fft() {
-  fftw_cleanup_threads();
+  //fftw_cleanup_threads();
   fftw_free(out);
   fftw_free(in);
   fftw_free(inTmp);
