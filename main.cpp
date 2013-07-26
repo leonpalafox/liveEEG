@@ -7,7 +7,7 @@
 
 #include <zmq.hpp>
 
-#include <mgl2/fltk.h>
+//#include <mgl2/fltk.h>
 
 #include "fft.h"
 #include "eeg_receiver.h"
@@ -30,10 +30,10 @@ int main()
   // change the proiority and scheduler of process
   struct sched_param param;
   param.sched_priority = 99;
-  /*if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {
+  if (sched_setscheduler(0, SCHED_FIFO, & param) != 0) {
     perror("sched_setscheduler");
     exit(EXIT_FAILURE);
-  }*/
+  }
 
   // data to be received
   double time;
@@ -74,21 +74,25 @@ cout<<"l1"<<endl;
 
   struct timespec requestStart, requestEnd;
 
-  GnuPlot gnuplot;
+
   double alpha = 0.9;
 
-  const size_t numChannelsPlt = 3;
+  const size_t numChannelsPlt = 4;
   vector<float> pwrPlt(numChannelsPlt);
+  vector<string> legends;
+  legends.push_back(string("ch 1"));
+  legends.push_back(string("ch 2"));
+  legends.push_back(string("ch 3"));
+  legends.push_back(string("ch 4"));
 
-cout<<"l"<<endl;
+  GnuPlot gnuplot(legends);
+
   // main loop
   int loop = 0;
   for(; !kbhit();){
     eeg.receive(time, channels);
     cout<<fixed<<setprecision(9)<<time<<endl;
 
-
-    fwrite(channels, sizeof(float), dataSize, pFile);
     //cout<<"write in file"<<endl;
 
     /*clock_gettime(CLOCK_REALTIME, &requestEnd);
@@ -101,20 +105,24 @@ cout<<"l"<<endl;
       for (size_t ch=0; ch<numChannelsWOT; ch++) {
         point[ch] = channels[i*numChannels+ch];
       }
-      //cout<<"a"<<endl;
+      // large laplacians
+      point[62] = channels[27] - 0.25 * (channels[25]+channels[9]+channels[29]+channels[45]);
+      point[63] = channels[31] - 0.25 * (channels[29]+channels[13]+channels[33]+channels[49]);
       fft.AddPoints(point);
-      //cout<<"aa"<<endl;
     }
-//cout<<"p"<<endl;
+
     loop += 1;
     if (loop > 10) {
       clock_gettime(CLOCK_REALTIME, &requestStart);
       if (fft.Process()) {
         fft.GetPower(powers);
-        pwrPlt[0] = (alpha) * pwrPlt[0] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
-        pwrPlt[1] = (alpha) * pwrPlt[1] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
-        pwrPlt[2] = (alpha) * pwrPlt[2] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
-        //cout<<powers[10][10]<<endl;
+        pwrPlt[0] = (alpha) * pwrPlt[0] + (1.0 - alpha) * (powers[27][3] - 0.25 * (powers[25][3]+powers[9][3]+powers[29][3]+powers[45][3]));
+        pwrPlt[1] = (alpha) * pwrPlt[1] + (1.0 - alpha) * (powers[31][3] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
+        pwrPlt[2] = (alpha) * pwrPlt[2] + (1.0 - alpha) * powers[62][3];
+        pwrPlt[3] = (alpha) * pwrPlt[3] + (1.0 - alpha) * powers[63][3];
+
+        fwrite(channels, sizeof(float), dataSize, pFile);
+        //fwrite(channels, sizeof(float), dataSize, pFilePwr);
       }
       clock_gettime(CLOCK_REALTIME, &requestEnd);
       double accum = ( requestEnd.tv_sec - requestStart.tv_sec )

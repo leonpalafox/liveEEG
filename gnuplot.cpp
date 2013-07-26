@@ -1,13 +1,13 @@
 #include "gnuplot.h"
 #include <strstream>
 
-GnuPlot::GnuPlot(std::vector<std::string> legends) {
-  std::istrstream cmd;
+GnuPlot::GnuPlot(std::vector<std::string>& legends) {
+  std::ostrstream cmd;
   cmd<<"feedgnuplot --lines --nodomain --ymin -0.5 --ymax 4.5";
-  for (size_t i=0; i<legends.size(); i++)
-    cmd<<" --legend "<<i<<" "<<legends[i];
+  //for (size_t i=0; i<legends.size(); i++)
+  //  cmd<<" --legend "<<i<<" "<<legends[i];
   cmd<<" --stream -xlen 400 --geometry 940x450-0+0";
-  gfeed_ = popen(cmd.str().c_str(), "w");
+  gfeed_ = popen(cmd.str(), "w");
 }
 
 void GnuPlot::Plot(std::vector<float>& values) {
