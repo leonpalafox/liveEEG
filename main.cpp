@@ -75,8 +75,10 @@ cout<<"l1"<<endl;
   struct timespec requestStart, requestEnd;
 
   GnuPlot gnuplot;
-  double avg_pow1 = 0.0;
   double alpha = 0.9;
+
+  const size_t numChannelsPlt = 3;
+  vector<float> pwrPlt(numChannelsPlt);
 
 cout<<"l"<<endl;
   // main loop
@@ -109,7 +111,9 @@ cout<<"l"<<endl;
       clock_gettime(CLOCK_REALTIME, &requestStart);
       if (fft.Process()) {
         fft.GetPower(powers);
-        avg_pow1 = (alpha) * avg_pow1 + (1.0 - alpha) * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]);
+        pwrPlt[0] = (alpha) * pwrPlt[0] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
+        pwrPlt[1] = (alpha) * pwrPlt[1] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
+        pwrPlt[2] = (alpha) * pwrPlt[2] + (1.0 - alpha) * (channels[27] - 0.25 * (powers[29][3]+powers[13][3]+powers[33][3]+powers[49][3]));
         //cout<<powers[10][10]<<endl;
       }
       clock_gettime(CLOCK_REALTIME, &requestEnd);
@@ -118,7 +122,7 @@ cout<<"l"<<endl;
         / 1E9;
       cout<<"t: "<<fixed<<setprecision(12)<<accum<<endl;
       loop = 0;
-      gnuplot.Plot(avg_pow1);
+      gnuplot.Plot(pwrPlt);
     }
   }
 
